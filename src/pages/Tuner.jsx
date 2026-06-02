@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, Info, Guitar, ChevronDown } from 'lucide-react'
-import tunerBg from '../assets/tuner.png'
 import PageWrapper from '../components/layout/PageWrapper'
 
 import { usePitchDetection } from '../hooks/usePitchDetection'
@@ -138,7 +137,7 @@ export default function Tuner() {
     : '0 20px 40px rgba(0,0,0,0.5)'
 
   return (
-    <PageWrapper bgImage={tunerBg} className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pb-16" overlayGradient="bg-black/75">
+    <PageWrapper className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pb-16">
       {/* Dynamic ambient page backing glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-10"

@@ -4,7 +4,6 @@ import {
   Play, Pause, Plus, Minus, Volume2, Volume1, VolumeX, Info, Timer
 } from 'lucide-react'
 import PageWrapper from '../components/layout/PageWrapper'
-import metronomeBg from '../assets/metronome.png'
 import { useMetronome } from '../hooks/useMetronome'
 import BeatVisualizer from '../components/metronome/BeatVisualizer'
 import TapTempo from '../components/metronome/TapTempo'
@@ -27,11 +26,17 @@ const GENRE_PRESETS = [
   { label: 'Metal', bpm: 160 },
 ]
 
-const SIGNATURES = [
+const SIMPLE_SIGNATURES = [
+  { label: '1/4', value: 1 },
   { label: '2/4', value: 2 },
   { label: '3/4', value: 3 },
   { label: '4/4', value: 4 },
   { label: '5/4', value: 5 },
+  { label: '6/4', value: 6 },
+  { label: '7/4', value: 7 },
+]
+
+const COMPOUND_SIGNATURES = [
   { label: '6/8', value: 6 },
 ]
 
@@ -59,6 +64,7 @@ export default function Metronome() {
 
   // ── Smooth BPM Counter Transition ───────────────────────────────────────────
   const [displayBpm, setDisplayBpm] = useState(bpm)
+  const [selectedSig, setSelectedSig] = useState('4/4')
 
   useEffect(() => {
     let frame = null
@@ -145,7 +151,7 @@ export default function Metronome() {
   }
 
   return (
-    <PageWrapper bgImage={metronomeBg} className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pb-16" overlayGradient="bg-black/75">
+    <PageWrapper className="flex flex-col items-center px-4 sm:px-6 lg:px-8 pb-16">
       {/* Backing glow effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[550px] rounded-full opacity-10"
@@ -279,26 +285,59 @@ export default function Metronome() {
           </div>
 
           {/* Time Signatures */}
-          <div className="w-full mb-5 flex flex-col gap-2">
+          <div className="w-full mb-5 flex flex-col gap-3.5">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-1">Time Signature</span>
-            <div className="flex gap-1.5 w-full bg-white/[0.03] border border-white/[0.05] p-1 rounded-2xl">
-              {SIGNATURES.map((sig) => {
-                const isActive = beatsPerMeasure === sig.value
-                return (
-                  <button
-                    key={sig.value}
-                    onClick={() => setBeatsPerMeasure(sig.value)}
-                    className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${
-                      isActive
-                        ? 'text-[#FF007A]'
-                        : 'bg-transparent border-transparent text-slate-400 hover:text-white'
-                    }`}
-                    style={isActive ? { background: 'rgba(255,0,122,0.15)', borderColor: '#FF007A' } : {}}
-                  >
-                    {sig.label}
-                  </button>
-                )
-              })}
+            
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600 px-1">Simple</span>
+              <div className="flex gap-1.5 w-full bg-white/[0.03] border border-white/[0.05] p-1 rounded-2xl flex-wrap">
+                {SIMPLE_SIGNATURES.map((sig) => {
+                  const isActive = selectedSig === sig.label
+                  return (
+                    <button
+                      key={sig.label}
+                      onClick={() => {
+                        setSelectedSig(sig.label)
+                        setBeatsPerMeasure(sig.value)
+                      }}
+                      className={`flex-1 min-w-[36px] py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${
+                        isActive
+                          ? 'text-[#FF007A]'
+                          : 'bg-transparent border-transparent text-slate-400 hover:text-white'
+                      }`}
+                      style={isActive ? { background: 'rgba(255,0,122,0.15)', borderColor: '#FF007A' } : {}}
+                    >
+                      {sig.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600 px-1">Compound</span>
+              <div className="flex gap-1.5 w-full bg-white/[0.03] border border-white/[0.05] p-1 rounded-2xl">
+                {COMPOUND_SIGNATURES.map((sig) => {
+                  const isActive = selectedSig === sig.label
+                  return (
+                    <button
+                      key={sig.label}
+                      onClick={() => {
+                        setSelectedSig(sig.label)
+                        setBeatsPerMeasure(sig.value)
+                      }}
+                      className={`flex-1 py-2 rounded-xl text-xs font-semibold border transition-all duration-200 ${
+                        isActive
+                          ? 'text-[#FF007A]'
+                          : 'bg-transparent border-transparent text-slate-400 hover:text-white'
+                      }`}
+                      style={isActive ? { background: 'rgba(255,0,122,0.15)', borderColor: '#FF007A' } : {}}
+                    >
+                      {sig.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 

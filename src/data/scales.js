@@ -14,6 +14,7 @@ export const OPEN_STRING_MIDIS = [40, 45, 50, 55, 59, 64];
 export const SCALE_FORMULAS = {
   major: [2, 2, 1, 2, 2, 2, 1],
   natural_minor: [2, 1, 2, 2, 1, 2, 2],
+  major_pentatonic: [2, 2, 3, 2, 3],
   minor_pentatonic: [3, 2, 2, 3, 2],
   blues: [3, 2, 1, 1, 3, 2],
   dorian: [2, 1, 2, 2, 2, 1, 2],
@@ -29,6 +30,7 @@ export const SCALE_FORMULAS = {
 export const SCALE_TYPES = [
   { id: 'major', label: 'Major' },
   { id: 'natural_minor', label: 'Natural Minor' },
+  { id: 'major_pentatonic', label: 'Major Pentatonic' },
   { id: 'minor_pentatonic', label: 'Minor Pentatonic' },
   { id: 'blues', label: 'Blues Scale' },
   { id: 'dorian', label: 'Dorian Mode' },

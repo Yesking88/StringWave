@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 export function useMetronome() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [bpm, setBpm] = useState(100)
-  const [beatsPerMeasure, setBeatsPerMeasure] = useState(4)
+  const [beatsPerMeasure, setBeatsPerMeasure] = useState(4) // Support 1 (1/4), 2 (2/4), 3 (3/4), 4 (4/4), 5 (5/4), 6 (6/4 or 6/8), 7 (7/4)
   const [subdivision, setSubdivision] = useState('Quarter') // 'Quarter' | 'Eighth' | 'Sixteenth'
   const [volume, setVolume] = useState(80)
   const [currentBeat, setCurrentBeat] = useState(-1) // -1 means none (stopped)

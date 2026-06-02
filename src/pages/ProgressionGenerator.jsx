@@ -6,16 +6,27 @@ import {
   Drum, Sliders,
 } from 'lucide-react'
 import PageWrapper from '../components/layout/PageWrapper'
-import chordProgressionBg from '../assets/chord-progression-new.png'
 import ProgressionSection from '../components/progression/ProgressionSection'
 import MixerPanel from '../components/progression/MixerPanel'
 import { CHORDS } from '../data/chords'
 import { useProgressionPlayer } from '../hooks/useProgressionPlayer'
 import { useSavedProgressions } from '../hooks/useSavedProgressions'
 import { DEFAULT_MIX } from '../utils/progressionAudio'
+import { getCompatibleScale } from '../data/scaleMatcher'
+import { getScaleNotes, CHROMATIC, OPEN_STRINGS } from '../data/scales'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const KEYS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B']
+
+const FLAT_TO_SHARP = {
+  'Db': 'C#',
+  'Eb': 'D#',
+  'Gb': 'F#',
+  'Ab': 'G#',
+  'Bb': 'A#',
+}
+
+const OPEN_STRING_INDICES = [4, 11, 7, 2, 9, 4]
 
 // ── Rhythmic Style definitions ────────────────────────────────────────────────
 const STYLES = [
@@ -162,6 +173,7 @@ export default function ProgressionGenerator() {
   const [genrePopover,    setGenrePopover]    = useState(false)
   const [keyDropdownOpen, setKeyDropdownOpen] = useState(false)
   const [mixerOpen,       setMixerOpen]       = useState(false)
+  const [showScaleOverlay, setShowScaleOverlay] = useState(false)
   const [saveName,        setSaveName]        = useState('')
   const [saveError,       setSaveError]       = useState('')
   const genreButtonRef = useRef(null)
@@ -175,9 +187,33 @@ export default function ProgressionGenerator() {
   }, [])
 
   // Player
-  const { isPlaying, playingSlotId, play, stop } = useProgressionPlayer({
+  const { isPlaying, playingSlotId, activeChord, play, stop } = useProgressionPlayer({
     sections, bpm, style, mix, chordsMap,
   })
+
+  // Live scale matching logic
+  const activeChordName = useMemo(() => {
+    if (activeChord) return activeChord
+    // Fallback: try to find the first chord in the active section
+    const activeSec = sections.find(s => s.id === activeSectionId)
+    if (activeSec && activeSec.chords && activeSec.chords.length > 0) {
+      const firstChordSlot = activeSec.chords.find(c => c.chordId)
+      if (firstChordSlot) {
+        const chord = chordsMap.get(firstChordSlot.chordId)
+        if (chord) return chord.name
+      }
+    }
+    return selectedKey // fallback to selected key (e.g. 'C')
+  }, [activeChord, sections, activeSectionId, chordsMap, selectedKey])
+
+  const compatibleScale = useMemo(() => {
+    return getCompatibleScale(activeChordName)
+  }, [activeChordName])
+
+  const scaleNotes = useMemo(() => {
+    const normalizedRoot = FLAT_TO_SHARP[compatibleScale.key] || compatibleScale.key
+    return getScaleNotes(normalizedRoot, compatibleScale.scaleType)
+  }, [compatibleScale])
 
   const handlePlayStop = useCallback(() => {
     if (isPlaying) stop(); else play()
@@ -292,7 +328,7 @@ export default function ProgressionGenerator() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <PageWrapper bgImage={chordProgressionBg} className="flex flex-col px-4 sm:px-6 lg:px-8 pb-16" overlayGradient="bg-black/75">
+    <PageWrapper className="flex flex-col px-4 sm:px-6 lg:px-8 pb-16">
       {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full opacity-10"
@@ -448,6 +484,19 @@ export default function ProgressionGenerator() {
 
             {/* Mixer button (pushed right) */}
             <div className="flex items-center gap-1.5 ml-auto">
+              {/* Live Scale Overlay Toggle */}
+              <button
+                onClick={() => setShowScaleOverlay(prev => !prev)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
+                  showScaleOverlay
+                    ? 'bg-[#FF007A]/15 border-[#FF007A]/40 text-white shadow-[0_0_12px_rgba(255,0,122,0.25)]'
+                    : 'bg-white/[0.04] border-white/10 text-white/70 hover:text-white hover:bg-white/[0.08]'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${showScaleOverlay ? 'bg-[#FF007A] animate-pulse shadow-[0_0_6px_#FF007A]' : 'bg-slate-500'}`} />
+                <span>Live Scale Overlay</span>
+              </button>
+
               {/* Mixer popover trigger */}
               <div className="relative" ref={mixerButtonRef}>
                 <button
@@ -543,6 +592,147 @@ export default function ProgressionGenerator() {
           </div>
         </div>
       </div>
+
+      {/* ── Fretboard Scale Overlay ── */}
+      <AnimatePresence>
+        {showScaleOverlay && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-5xl mx-auto px-4 overflow-hidden mb-2 relative z-20"
+          >
+            <div className="glass p-4 rounded-3xl border border-white/5 bg-slate-950/45 backdrop-blur-2xl shadow-xl flex flex-col gap-3">
+              {/* Header/Info Row */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/[0.06] pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-[#FF007A] animate-pulse shadow-[0_0_8px_#FF007A]" />
+                  <span className="text-xs font-bold text-white/90">
+                    Live Scale Guide: <span className="text-[#FF007A] font-extrabold">{compatibleScale.key} {compatibleScale.scale}</span>
+                  </span>
+                  {activeChord && (
+                    <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded-full text-slate-400 font-medium">
+                      Matching active chord: <strong className="text-white">{activeChord}</strong>
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-[10px] text-slate-400 font-semibold">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF7300] border border-[#FF7300]/30 shadow-[0_0_6px_rgba(255,115,0,0.5)]" />
+                    <span>Root ({compatibleScale.key})</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF007A] border border-[#FF007A]/30 shadow-[0_0_6px_rgba(255,0,122,0.5)]" />
+                    <span>Scale notes</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fretboard Matrix */}
+              <div className="overflow-x-auto select-none rounded-2xl border border-slate-900/60 bg-[#07070b]/90 relative shadow-inner py-2">
+                <div className="min-w-[840px] flex flex-col relative pr-4">
+                  
+                  {/* Grid of frets */}
+                  <div className="flex flex-col gap-0.5 relative z-10">
+                    {/* Fret labels */}
+                    <div className="flex h-5 items-end mb-1">
+                      <div className="w-10 flex-shrink-0" />
+                      {Array.from({ length: 16 }).map((_, fretNum) => (
+                        <div key={fretNum} className="flex-1 flex justify-center text-[9px] font-extrabold tracking-wider text-slate-500">
+                          {fretNum === 0 ? 'OPEN' : fretNum}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Fret wire overlays */}
+                    <div className="absolute inset-0 pointer-events-none z-0 flex pr-1" style={{ top: '24px', bottom: '0px' }}>
+                      <div className="w-10 flex-shrink-0" />
+                      {Array.from({ length: 16 }).map((_, fretNum) => (
+                        <div
+                          key={fretNum}
+                          className={`flex-1 relative h-full ${
+                            fretNum === 0 
+                              ? 'border-r-4 border-slate-300/80' 
+                              : 'border-r border-slate-800/40 shadow-[1px_0_0_rgba(0,0,0,0.7)]'
+                          }`}
+                        >
+                          {/* Fret Markers */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center opacity-25">
+                            {[3, 5, 7, 9, 15].includes(fretNum) && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                            )}
+                            {fretNum === 12 && (
+                              <div className="flex flex-col gap-5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Guitar string rows */}
+                    {OPEN_STRING_INDICES.map((openNoteIdx, stringIdx) => {
+                      const stringLabel = OPEN_STRINGS[5 - stringIdx];
+                      const thicknessClass = [
+                        'h-[0.75px]',
+                        'h-[1.25px]',
+                        'h-[1.75px]',
+                        'h-[2.25px]',
+                        'h-[2.75px]',
+                        'h-[3.25px]',
+                      ][stringIdx];
+
+                      return (
+                        <div key={stringIdx} className="flex h-9 items-center relative select-none">
+                          {/* String Name */}
+                          <div className="w-10 flex-shrink-0 flex items-center justify-center pr-2 border-r border-slate-800/50">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter text-center">
+                              {stringLabel}
+                            </span>
+                          </div>
+
+                          {/* String Line */}
+                          <div className={`absolute left-10 right-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-slate-400/50 via-slate-300/40 to-slate-400/50 shadow-[0_1px_1px_rgba(0,0,0,0.3)] pointer-events-none z-0 ${thicknessClass}`} />
+
+                          {/* Fret positions */}
+                          {Array.from({ length: 16 }).map((_, fretNum) => {
+                            const noteVal = (openNoteIdx + fretNum) % 12;
+                            const noteName = CHROMATIC[noteVal];
+                            const isInScale = scaleNotes.includes(noteName);
+                            const isRoot = noteName === compatibleScale.key;
+
+                            return (
+                              <div key={fretNum} className={`flex-1 h-full flex items-center justify-center relative z-10 ${fretNum === 0 ? 'pr-3' : ''}`}>
+                                {isInScale ? (
+                                  <div
+                                    className={`w-6 h-6 rounded-full flex items-center justify-center font-extrabold text-[9px] shadow-md border select-none relative transition-all duration-200 ${
+                                      isRoot
+                                        ? 'border-orange-300 bg-gradient-to-br from-[#FF7300] to-orange-600 text-white shadow-[0_1px_6px_rgba(255,115,0,0.35)]'
+                                        : 'border-pink-300 bg-gradient-to-br from-[#FF007A] to-rose-600 text-white shadow-[0_1px_6px_rgba(255,0,122,0.35)]'
+                                    }`}
+                                  >
+                                    {noteName}
+                                  </div>
+                                ) : (
+                                  <div className="w-1 h-1 rounded-full bg-slate-800/40 pointer-events-none" />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Sections List ──────────────────────────────────────────────────── */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 pt-6 pb-20 flex flex-col gap-4">

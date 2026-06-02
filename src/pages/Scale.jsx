@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Square, Music4, Sliders, Info, HelpCircle, ChevronDown } from 'lucide-react';
 import PageWrapper from '../components/layout/PageWrapper';
-import scaleBg from '../assets/scale.png';
 import {
   CHROMATIC,
   OPEN_STRINGS,
@@ -107,7 +106,7 @@ export default function Scale() {
   };
 
   return (
-    <PageWrapper bgImage={scaleBg} className="px-4 sm:px-6 lg:px-8" overlayGradient="bg-black/75">
+    <PageWrapper className="px-4 sm:px-6 lg:px-8">
       {/* Page Header */}
       <div className="relative z-10 text-center pb-8 pt-8 flex flex-col items-center">
         <h1 className="gradient-text font-display leading-tight tracking-tight font-extrabold mb-2 text-4xl sm:text-5xl flex items-center justify-center gap-3" style={{ textShadow: '0 0 20px rgba(255, 0, 122, 0.15)' }}>

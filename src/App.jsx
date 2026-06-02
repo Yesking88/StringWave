@@ -9,6 +9,9 @@ import SongFinder from './pages/SongFinder'
 import ProgressionGenerator from './pages/ProgressionGenerator'
 import Scale from './pages/Scale'
 import Metronome from './pages/Metronome'
+import FretGame from './pages/FretGame'
+import ChordSheetCreator from './pages/ChordSheetCreator'
+import CircleOfFifths from './pages/CircleOfFifths'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -35,6 +38,9 @@ export default function App() {
               <Route path="/progression" element={<ProgressionGenerator />} />
               <Route path="/scale" element={<Scale />} />
               <Route path="/metronome" element={<Metronome />} />
+              <Route path="/trainer" element={<FretGame />} />
+              <Route path="/creator" element={<ChordSheetCreator />} />
+              <Route path="/circle" element={<CircleOfFifths />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </motion.div>

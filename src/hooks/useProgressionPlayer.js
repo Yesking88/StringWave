@@ -30,6 +30,7 @@ import {
 export function useProgressionPlayer({ sections, bpm, style = 'pop', mix = DEFAULT_MIX, chordsMap }) {
   const [isPlaying,     setIsPlaying]  = useState(false)
   const [playingSlotId, setPlayingId]  = useState(null)
+  const [activeChord,   setActiveChord] = useState(null)
 
   // ── Refs (survive re-renders, safe to read in closures) ─────────────────
   const stopRef      = useRef(false)
@@ -55,6 +56,7 @@ export function useProgressionPlayer({ sections, bpm, style = 'pop', mix = DEFAU
     scheduledRef.current = []
 
     setPlayingId(null)
+    setActiveChord(null)
   }, [])
 
   // ── Unmount cleanup ──────────────────────────────────────────────────────
@@ -102,8 +104,12 @@ export function useProgressionPlayer({ sections, bpm, style = 'pop', mix = DEFAU
         // Visual callback — fires ~5 ms early (imperceptible)
         const delay  = Math.max(0, (cursor - ctx.currentTime) * 1000 - 5)
         const slotId = slot.id
+        const chordName = chord.name
         const t = setTimeout(() => {
-          if (!stopRef.current) setPlayingId(slotId)
+          if (!stopRef.current) {
+            setPlayingId(slotId)
+            setActiveChord(chordName)
+          }
         }, delay)
         timersRef.current.push(t)
 
@@ -150,5 +156,5 @@ export function useProgressionPlayer({ sections, bpm, style = 'pop', mix = DEFAU
     setIsPlaying(false)
   }, [cancelAll])
 
-  return { isPlaying, playingSlotId, play, stop }
+  return { isPlaying, playingSlotId, activeChord, play, stop }
 }

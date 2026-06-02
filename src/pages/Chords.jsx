@@ -5,7 +5,6 @@ import { CHORDS, CATEGORIES } from '../data/chords'
 import { useFavorites } from '../hooks/useFavorites'
 import ChordCard from '../components/chords/ChordCard'
 import ChordModal from '../components/chords/ChordModal'
-import chordLibraryBg from '../assets/chord-library.png'
 import PageWrapper from '../components/layout/PageWrapper'
 
 // ── Root Notes configuration ──────────────────────────────────────────────────
@@ -137,7 +136,7 @@ export default function Chords() {
   }
 
   return (
-    <PageWrapper bgImage={chordLibraryBg} className="px-4 sm:px-6 lg:px-8" overlayGradient="bg-black/75">
+    <PageWrapper className="px-4 sm:px-6 lg:px-8">
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <div
         style={{ textAlign: 'center', paddingBottom: 24, paddingTop: 16 }}

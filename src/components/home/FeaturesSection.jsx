@@ -1,4 +1,4 @@
-import { Guitar, BookOpen, Sliders, Music4, Search, Timer, ArrowRight } from 'lucide-react'
+import { Guitar, BookOpen, Sliders, Music4, Search, Timer, ArrowRight, Trophy, FileText } from 'lucide-react'
 
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -10,6 +10,8 @@ const features = [
   { id: 'feature-scale', icon: Music4, label: 'Scale Visualizer', gradientFrom: '#CC00AA', gradientTo: '#FF007A', description: 'Master the fretboard. Map intervals, visualize root anchor notes across 15 frets, and listen to scale sequences dynamically.', to: '/scale', cta: 'Explore Scales' },
   { id: 'feature-songs', icon: Search, label: 'Song Finder', gradientFrom: '#ec4899', gradientTo: '#f472b6', description: 'Discover songs that match the chords you already know.', to: '/songs', cta: 'Find Songs' },
   { id: 'feature-metronome', icon: Timer, label: 'Metronome', gradientFrom: '#f59e0b', gradientTo: '#fbbf24', description: 'Precision tempo with tap tempo, time signatures, and genre presets.', to: '/metronome', cta: 'Open Metronome' },
+  { id: 'feature-trainer', icon: Trophy, label: 'Fretboard Trainer', gradientFrom: '#FF7300', gradientTo: '#fbbf24', description: 'Gamified arcade practice! Train your muscle memory by finding notes on the fretboard before the timer runs out.', to: '/trainer', cta: 'Train Fretboard' },
+  { id: 'feature-sheet-creator', icon: FileText, label: 'Chord Sheet Creator', gradientFrom: '#FF007A', gradientTo: '#7B00FF', description: 'Create and save custom song sheets. Stamp interactive chords directly above lyrics with dynamic hover fretboard diagrams.', to: '/creator', cta: 'Create Song Sheet' },
 ]
 
 const containerVariants = {
@@ -39,10 +41,10 @@ export default function FeaturesSection() {
             Everything you need
           </p>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4">
-            Five tools. One workspace.
+            Eight premium tools. One workspace.
           </h2>
           <p className="text-base max-w-xl mx-auto" style={{ color: '#64748b' }}>
-            Everything a guitarist needs — tuning, chords, songs, progressions, and rhythm.
+            Everything a guitarist needs — tuning, chords, songs, progressions, scales, metronome, trainer arcade, and custom chord sheets.
           </p>
         </motion.div>
 

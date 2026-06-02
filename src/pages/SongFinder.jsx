@@ -4,7 +4,6 @@ import { Search, X, Clock, TrendingUp, Music2, ExternalLink, Zap } from 'lucide-
 import { SONGS, GENRE_META, DIFFICULTY_META, buildUGUrl } from '../data/songs'
 import { useSearchHistory } from '../hooks/useSearchHistory'
 import SongCard from '../components/songs/SongCard'
-import songFinderBg from '../assets/song-finder.png'
 import PageWrapper from '../components/layout/PageWrapper'
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -121,12 +120,7 @@ export default function SongFinder() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <PageWrapper
-      bgImage={songFinderBg}
-      bgPosition="bg-top"
-      overlayGradient="bg-black/75"
-      className=""
-    >
+    <PageWrapper className="">
       {/* ── Hero section ──────────────────────────────────────────────────── */}
       <div
         style={{
